@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>이중호 - AI활용 전문 강사 디지털 명함</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <!-- QRCode.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- Tone.js for Sound Effect -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        mint: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            400: '#4ade80',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Noto Sans KR', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 8px 30px rgba(0, 0, 0, 0.06)',
+                        'btn': '0 4px 14px 0 rgba(22, 163, 74, 0.39)',
+                        'gold': '0 4px 14px 0 rgba(234, 179, 8, 0.4)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #eef2f5;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .water-ripple {
+            position: relative;
+            overflow: hidden;
+        }
+        .water-ripple::after {
+            content: "";
+            display: block;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            background-image: radial-gradient(circle, #fff 10%, transparent 10.01%);
+            background-repeat: no-repeat;
+            background-position: 50%;
+            transform: scale(10, 10);
+            opacity: 0;
+            transition: transform .5s, opacity 1s;
+        }
+        .water-ripple:active::after {
+            transform: scale(0, 0);
+            opacity: .3;
+            transition: 0s;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-2 sm:p-4">
+
+    <!-- 모바일 컨테이너 프레임 -->
+    <div class="w-full max-w-md bg-emerald-50/70 rounded-3xl shadow-2xl border-4 border-white overflow-hidden relative min-h-[850px] flex flex-col justify-between my-auto">
+        
+        <!-- 상단 헤더 & 관리자 버튼 -->
+        <div class="px-6 pt-5 pb-2 flex justify-between items-center z-10">
+            <div class="flex items-center space-x-1.5 bg-emerald-100/90 px-3 py-1.5 rounded-full text-emerald-800 text-xs font-bold shadow-sm">
+                <i class="fa-solid fa-seedling text-emerald-600"></i>
+                <span>Digital Business Card</span>
+            </div>
+            <button type="button" onclick="openAdminAuthModal()" class="water-ripple bg-white hover:bg-slate-50 text-slate-700 px-3 py-1.5 rounded-full shadow-sm text-xs flex items-center gap-1.5 border border-emerald-200 font-bold transition-all active:scale-95">
+                <i class="fa-solid fa-gear text-emerald-600 text-sm"></i>
+                <span>관리자</span>
+            </button>
+        </div>
+
+        <!-- 메인 콘텐츠 영역 -->
+        <div class="px-5 py-2 space-y-4 text-center">
+            
+            <!-- 프로필 아이콘 & 이름 -->
+            <div class="flex flex-col items-center">
+                <div class="w-24 h-24 bg-emerald-100 rounded-3xl p-1 shadow-inner relative flex items-center justify-center mb-3 border-2 border-emerald-200 overflow-hidden">
+                    <img id="display-avatar-img" src="" alt="프로필 사진" class="w-full h-full object-cover rounded-2xl hidden">
+                    <div id="display-avatar-fallback" class="w-full h-full bg-emerald-500 rounded-2xl flex items-center justify-center text-white shadow-md">
+                        <i class="fa-solid fa-user-graduate text-4xl"></i>
+                    </div>
+                    <div class="absolute -bottom-1 -right-1 bg-white p-1.5 rounded-full shadow border border-emerald-100 z-10">
+                        <i class="fa-solid fa-leaf text-emerald-600 text-xs"></i>
+                    </div>
+                </div>
+
+                <h1 id="display-name" class="text-2xl font-black text-slate-800 tracking-tight mb-1">이중호</h1>
+                
+                <div class="inline-block bg-emerald-200/80 text-emerald-900 font-bold px-4 py-1.5 rounded-full text-sm shadow-sm border border-emerald-300/60">
+                    <span id="display-title">AI활용 전문 강사</span>
+                </div>
+            </div>
+
+            <!-- 교육 철학 및 슬로건 -->
+            <div class="bg-white rounded-2xl p-4 shadow-card border border-emerald-100 text-center relative">
+                <div class="text-[11px] font-bold text-emerald-600 uppercase tracking-wider mb-1 flex items-center justify-center gap-1">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> 교육 철학 & 슬로건
+                </div>
+                <p id="display-slogan" class="text-slate-700 font-bold text-sm leading-relaxed">
+                    "쉽고 재미있게 배워보는 신나는 디지털 & AI 세상"
+                </p>
+            </div>
+
+            <!-- 음성 소개 버튼 -->
+            <button type="button" id="btn-tts" onclick="playTTS()" class="water-ripple w-full bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-amber-950 font-black py-3.5 px-4 rounded-2xl shadow-gold flex items-center justify-center gap-3 active:scale-[0.98] transition-all">
+                <i class="fa-solid fa-volume-high text-lg text-amber-900 animate-pulse"></i>
+                <span id="tts-btn-text">강사 소개 음성으로 듣기</span>
+            </button>
+
+            <!-- 주요 경력 사항 (4대 핵심 분야) -->
+            <div class="text-left space-y-2">
+                <div class="flex justify-between items-center px-1">
+                    <span class="text-xs font-bold text-slate-700 flex items-center gap-1">
+                        <i class="fa-solid fa-leaf text-emerald-600"></i> 주요 경력 및 전문 분야
+                    </span>
+                    <span class="text-[10px] bg-emerald-100 text-emerald-800 font-extrabold px-2 py-0.5 rounded-full border border-emerald-200">4대 핵심분야</span>
+                </div>
+
+                <!-- 4대 핵심 분야 동적 컨테이너 -->
+                <div id="careers-list-container" class="space-y-2">
+                    <!-- JavaScript로 자동 생성됨 -->
+                </div>
+            </div>
+
+            <!-- 직통 전화 버튼 -->
+            <div class="bg-white rounded-2xl p-3 shadow-card border border-emerald-100 flex items-center justify-between gap-2">
+                <div class="flex items-center gap-3 pl-2">
+                    <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-700">
+                        <i class="fa-solid fa-phone text-lg"></i>
+                    </div>
+                    <div class="text-left">
+                        <div class="text-[10px] text-slate-400 font-bold uppercase">직통 전화</div>
+                        <div id="display-phone" class="text-base font-black text-slate-800">010-0000-0000</div>
+                    </div>
+                </div>
+                <a id="link-call" href="tel:0100000000" onclick="playWaterSound()" class="water-ripple bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-4 rounded-xl flex items-center gap-1.5 text-xs shadow-btn active:scale-95 transition-all">
+                    <i class="fa-solid fa-phone-flip"></i>
+                    <span>통화</span>
+                </a>
+            </div>
+
+            <!-- 주요 기능 및 소셜 링크 버튼 모음 -->
+            <div class="space-y-2.5 pt-1">
+                <!-- 연락처 복사하기 -->
+                <button type="button" onclick="copyContact()" class="water-ripple w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-3.5 px-4 rounded-2xl shadow-btn flex items-center justify-center gap-2 active:scale-[0.98] transition-all">
+                    <i class="fa-solid fa-address-book text-base"></i>
+                    <span>연락처 정보 복사하기</span>
+                </button>
+
+                <!-- 소셜 매체 3종 바로가기 버튼 그룹 (블로그, 유튜브, 인스타그램) -->
+                <div class="grid grid-cols-3 gap-2">
+                    <!-- 네이버 블로그 (Hye7077) -->
+                    <a id="link-blog" href="https://blog.naver.com/Hye7077" target="_blank" rel="noopener noreferrer" onclick="playWaterSound()" class="water-ripple bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-1 rounded-2xl shadow-sm flex flex-col items-center justify-center gap-1 text-xs active:scale-95 transition-all">
+                        <i class="fa-solid fa-bold text-lg"></i>
+                        <span>네이버 블로그</span>
+                    </a>
+                    <!-- 유튜브 (tv-kc3bm) -->
+                    <a id="link-youtube" href="https://www.youtube.com/@tv-kc3bm" target="_blank" rel="noopener noreferrer" onclick="playWaterSound()" class="water-ripple bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-1 rounded-2xl shadow-sm flex flex-col items-center justify-center gap-1 text-xs active:scale-95 transition-all">
+                        <i class="fa-brands fa-youtube text-lg"></i>
+                        <span>유튜브</span>
+                    </a>
+                    <!-- 인스타그램 (minji_sam) -->
+                    <a id="link-instagram" href="https://www.instagram.com/minji_sam" target="_blank" rel="noopener noreferrer" onclick="playWaterSound()" class="water-ripple bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 hover:opacity-95 text-white font-bold py-3 px-1 rounded-2xl shadow-sm flex flex-col items-center justify-center gap-1 text-xs active:scale-95 transition-all">
+                        <i class="fa-brands fa-instagram text-lg"></i>
+                        <span>인스타그램</span>
+                    </a>
+                </div>
+
+                <!-- 명함 주소 공유/카톡 전달 버튼 -->
+                <button type="button" onclick="shareCardUrl()" class="water-ripple w-full bg-amber-400 hover:bg-amber-500 text-amber-950 font-bold py-3.5 px-4 rounded-2xl shadow-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-all">
+                    <i class="fa-solid fa-share-nodes text-lg text-amber-900"></i>
+                    <span>명함 주소 카톡으로 공유하기</span>
+                </button>
+
+                <!-- QR코드 명함 공유 -->
+                <button type="button" onclick="openQRModal()" class="water-ripple w-full bg-white hover:bg-slate-50 text-emerald-800 border-2 border-emerald-300 font-bold py-3 px-4 rounded-2xl shadow-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-all">
+                    <i class="fa-solid fa-qrcode text-lg text-emerald-600"></i>
+                    <span>QR코드로 명함 공유하기</span>
+                </button>
+            </div>
+
+        </div>
+
+        <!-- 푸터 -->
+        <div class="py-4 text-center text-[11px] text-slate-400 font-medium border-t border-emerald-100 bg-emerald-50/50 mt-2">
+            <p class="flex items-center justify-center gap-1 text-emerald-800/80 font-bold">
+                <i class="fa-solid fa-leaf text-xs text-emerald-600"></i> DIGITAL & AI TUTOR © <span id="display-footer-year">2026</span> LEE JUNG HO
+            </p>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-slate-900/90 text-white text-xs px-5 py-3 rounded-full shadow-2xl opacity-0 pointer-events-none transition-all duration-300 z-50 flex items-center gap-2">
+        <i class="fa-solid fa-circle-check text-emerald-400"></i>
+        <span id="toast-message">클립보드에 복사되었습니다!</span>
+    </div>
+
+    <!-- QR Code Modal -->
+    <div id="qr-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-6 max-w-xs w-full text-center space-y-4 shadow-2xl relative">
+            <button type="button" onclick="closeQRModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 p-1">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <div class="text-emerald-700 font-bold text-lg flex items-center justify-center gap-2">
+                <i class="fa-solid fa-qrcode"></i> 디지털 명함 QR코드
+            </div>
+            <p class="text-xs text-slate-500">스마트폰 카메라로 스캔하시면<br>이중호 강사의 명함으로 연결됩니다.</p>
+            
+            <div class="bg-emerald-50 p-4 rounded-2xl border border-emerald-100 flex items-center justify-center min-h-[180px]">
+                <div id="qrcode-canvas" class="flex justify-center"></div>
+            </div>
+
+            <button type="button" onclick="closeQRModal()" class="w-full bg-slate-800 text-white font-bold py-2.5 rounded-xl text-xs active:scale-95 transition-all">
+                닫기
+            </button>
+        </div>
+    </div>
+
+    <!-- Admin Authentication Modal -->
+    <div id="admin-auth-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-6 max-w-xs w-full text-center space-y-4 shadow-2xl relative">
+            <button type="button" onclick="closeAdminAuthModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 p-1">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <div class="w-12 h-12 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mx-auto text-xl">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <div>
+                <h3 class="font-bold text-slate-800 text-base">관리자 인증</h3>
+                <p class="text-xs text-slate-500 mt-1">비밀번호를 입력해 주세요. (초기 비밀번호: <span class="font-bold text-emerald-600">1234</span>)</p>
+            </div>
+            <input type="password" id="admin-password-input" placeholder="비밀번호 입력" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-center text-sm focus:outline-none focus:border-emerald-500">
+            <button type="button" onclick="verifyAdminPassword()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs shadow-btn active:scale-95 transition-all">
+                확인 및 로그인
+            </button>
+        </div>
+    </div>
+
+    <!-- Admin Edit Modal -->
+    <div id="admin-edit-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl p-6 max-w-md w-full space-y-4 shadow-2xl my-auto relative max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b pb-3 sticky top-0 bg-white z-10">
+                <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
+                    <i class="fa-solid fa-sliders text-emerald-600"></i> 명함 정보 관리자 수정
+                </h3>
+                <button type="button" onclick="closeAdminEditModal()" class="text-slate-400 hover:text-slate-600 p-1">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <form id="admin-form" onsubmit="saveAdminSettings(event)" class="space-y-3 text-xs text-left">
+                <!-- 프로필 사진 업로드 & URL 입력 영역 -->
+                <div class="p-3 bg-emerald-50/70 rounded-2xl border border-emerald-100 space-y-2">
+                    <label class="block font-bold text-emerald-800 flex items-center gap-1">
+                        <i class="fa-solid fa-image text-emerald-600"></i> 프로필 사진 설정
+                    </label>
+                    <div class="flex items-center gap-2">
+                        <input type="file" id="edit-photo-file" accept="image/*" onchange="handleImageUpload(event)" class="hidden">
+                        <button type="button" onclick="document.getElementById('edit-photo-file').click()" class="bg-white hover:bg-slate-50 border border-slate-300 px-3 py-1.5 rounded-lg text-slate-700 font-bold text-xs flex items-center gap-1 shadow-sm">
+                            <i class="fa-solid fa-upload text-emerald-600"></i> 사진 파일 선택
+                        </button>
+                        <button type="button" onclick="removeProfilePhoto()" class="bg-red-50 hover:bg-red-100 border border-red-200 px-2 py-1.5 rounded-lg text-red-600 font-bold text-xs">
+                            삭제
+                        </button>
+                    </div>
+                    <div>
+                        <input type="text" id="edit-photo-url" placeholder="또는 인터넷 이미지 주소(URL) 입력" class="w-full p-2 rounded-lg border border-slate-300 text-[11px] focus:ring-1 focus:ring-emerald-500 outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">성함</label>
+                    <input type="text" id="edit-name" class="w-full p-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-500 outline-none">
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">직함 / 대표 타이틀</label>
+                    <input type="text" id="edit-title" class="w-full p-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-500 outline-none">
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">교육 철학 & 슬로건</label>
+                    <textarea id="edit-slogan" rows="2" class="w-full p-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-500 outline-none"></textarea>
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">전화번호</label>
+                    <input type="text" id="edit-phone" class="w-full p-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-500 outline-none">
+                </div>
+                
+                <hr class="my-2 border-slate-200">
+                <div class="font-bold text-emerald-700">4대 핵심 이력 분야</div>
+                <div>
+                    <label class="block font-medium text-slate-600 mb-0.5">이력 1</label>
+                    <input type="text" id="edit-career-1" class="w-full p-2 rounded-lg border border-slate-300">
+                </div>
+                <div>
+                    <label class="block font-medium text-slate-600 mb-0.5">이력 2</label>
+                    <input type="text" id="edit-career-2" class="w-full p-2 rounded-lg border border-slate-300">
+                </div>
+                <div>
+                    <label class="block font-medium text-slate-600 mb-0.5">이력 3</label>
+                    <input type="text" id="edit-career-3" class="w-full p-2 rounded-lg border border-slate-300">
+                </div>
+                <div>
+                    <label class="block font-medium text-slate-600 mb-0.5">이력 4</label>
+                    <input type="text" id="edit-career-4" class="w-full p-2 rounded-lg border border-slate-300">
+                </div>
+
+                <hr class="my-2 border-slate-200">
+                <div class="font-bold text-emerald-700">소셜 미디어 URL</div>
+                <div>
+                    <label class="block font-medium text-slate-600 mb-0.5">네이버 블로그 URL</label>
+                    <input type="url" id="edit-blog" class="w-full p-2 rounded-lg border border-slate-300" placeholder="https://blog.naver.com/Hye7077">
+                </div>
+                <div>
+                    <label class="block font-medium text-slate-600 mb-0.5">유튜브 채널 URL</label>
+                    <input type="url" id="edit-youtube" class="w-full p-2 rounded-lg border border-slate-300" placeholder="https://www.youtube.com/@tv-kc3bm">
+                </div>
+                <div>
+                    <label class="block font-medium text-slate-600 mb-0.5">인스타그램 URL</label>
+                    <input type="url" id="edit-instagram" class="w-full p-2 rounded-lg border border-slate-300" placeholder="https://www.instagram.com/minji_sam">
+                </div>
+
+                <!-- 비밀번호 변경 영역 -->
+                <hr class="my-2 border-slate-200">
+                <div class="p-3 bg-amber-50/70 rounded-2xl border border-amber-200 space-y-1.5">
+                    <label class="block font-bold text-amber-900 flex items-center gap-1">
+                        <i class="fa-solid fa-key text-amber-600"></i> 관리자 비밀번호 변경
+                    </label>
+                    <input type="password" id="edit-admin-pass" placeholder="새 비밀번호 입력 (미입력 시 기존 유지)" class="w-full p-2 rounded-lg border border-slate-300 text-xs focus:ring-2 focus:ring-amber-500 outline-none">
+                </div>
+
+                <div class="pt-3 flex gap-2">
+                    <button type="button" onclick="resetToDefaultData()" class="w-1/3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-2.5 rounded-xl text-xs transition-all">
+                        초기화
+                    </button>
+                    <button type="submit" class="w-2/3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs shadow-btn active:scale-95 transition-all">
+                        저장하기
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // 기본 프로필 설정
+        const defaultCardData = {
+            name: "이중호",
+            title: "AI활용 전문 강사",
+            photo: "",
+            slogan: "\"쉽고 재미있게 배워보는 신나는 디지털 & AI 세상\"",
+            phone: "010-0000-0000",
+            careers: [
+                { id: "01", icon: "fa-robot", title: "AI 활용 전문 강사" },
+                { id: "02", icon: "fa-chalkboard-user", title: "디지털튜터 전문 강사" },
+                { id: "03", icon: "fa-mobile-screen-button", title: "스마트폰 리터러시 강사" },
+                { id: "04", icon: "fa-video", title: "AI 숏폼 영상 제작 강사" }
+            ],
+            social: {
+                blog: "https://blog.naver.com/Hye7077",
+                youtube: "https://www.youtube.com/@tv-kc3bm",
+                instagram: "https://www.instagram.com/minji_sam"
+            },
+            adminPass: "1234"
+        };
+
+        let cardData = JSON.parse(JSON.stringify(defaultCardData));
+        let tempPhotoData = "";
+
+        // Tone.js 물방울 소리 생성기
+        let waterSynth = null;
+
+        function initAudio() {
+            if (!waterSynth && window.Tone) {
+                waterSynth = new Tone.Synth({
+                    oscillator: { type: "sine" },
+                    envelope: {
+                        attack: 0.001,
+                        decay: 0.15,
+                        sustain: 0,
+                        release: 0.1
+                    }
+                }).toDestination();
+                waterSynth.volume.value = -6;
+            }
+        }
+
+        function playWaterSound() {
+            try {
+                if (window.Tone) {
+                    if (Tone.context.state !== 'running') {
+                        Tone.start();
+                    }
+                    initAudio();
+                    const now = Tone.now();
+                    waterSynth.triggerAttackRelease("C6", "16n", now);
+                    waterSynth.frequency.setValueAtTime(1000, now);
+                    waterSynth.frequency.exponentialRampToValueAtTime(1800, now + 0.08);
+                }
+            } catch (e) {
+                console.log("Audio muted", e);
+            }
+        }
+
+        // 초기 로드
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSavedData();
+            renderCardData();
+
+            // 전역 물방울 사운드 바인딩
+            document.addEventListener('click', (e) => {
+                const btn = e.target.closest('button, a, input[type="submit"]');
+                if (btn) {
+                    playWaterSound();
+                }
+            });
+        });
+
+        // 로컬 스토리지 불러오기 및 무결성 검사
+        function loadSavedData() {
+            try {
+                const saved = localStorage.getItem('lee_jungho_card_data');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    // 객체 병합으로 구조 보장
+                    cardData = { ...defaultCardData, ...parsed };
+                    if (!cardData.careers || cardData.careers.length < 4) {
+                        cardData.careers = defaultCardData.careers;
+                    }
+                    if (!cardData.social) {
+                        cardData.social = defaultCardData.social;
+                    }
+                }
+            } catch (e) {
+                cardData = JSON.parse(JSON.stringify(defaultCardData));
+            }
+        }
+
+        // 화면 데이터 렌더링
+        function renderCardData() {
+            document.getElementById('display-name').textContent = cardData.name || "이중호";
+            document.getElementById('display-title').textContent = cardData.title || "AI활용 전문 강사";
+            document.getElementById('display-slogan').textContent = cardData.slogan || "\"쉽고 재미있게 배워보는 신나는 디지털 & AI 세상\"";
+            document.getElementById('display-phone').textContent = cardData.phone || "010-0000-0000";
+
+            // 프로필 이미지
+            const imgElem = document.getElementById('display-avatar-img');
+            const fallbackElem = document.getElementById('display-avatar-fallback');
+
+            if (cardData.photo && cardData.photo.trim() !== "") {
+                imgElem.src = cardData.photo;
+                imgElem.classList.remove('hidden');
+                fallbackElem.classList.add('hidden');
+            } else {
+                imgElem.src = "";
+                imgElem.classList.add('hidden');
+                fallbackElem.classList.remove('hidden');
+            }
+            
+            const rawPhone = (cardData.phone || "").replace(/[^0-9]/g, '');
+            document.getElementById('link-call').href = `tel:${rawPhone || '0100000000'}`;
+
+            // 4대 핵심 분야 리스트 렌더링
+            const careerContainer = document.getElementById('careers-list-container');
+            careerContainer.innerHTML = '';
+
+            const iconList = ["fa-robot", "fa-chalkboard-user", "fa-mobile-screen-button", "fa-video"];
+
+            for (let i = 0; i < 4; i++) {
+                const careerItem = (cardData.careers && cardData.careers[i]) ? cardData.careers[i] : defaultCardData.careers[i];
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'bg-white rounded-2xl p-3.5 shadow-card border border-emerald-100 flex items-center gap-3 hover:border-emerald-300 transition-all';
+                itemDiv.innerHTML = `
+                    <div class="w-10 h-10 bg-emerald-500 text-white rounded-xl flex items-center justify-center font-bold shadow-sm shrink-0">
+                        <i class="fa-solid ${iconList[i]} text-base"></i>
+                    </div>
+                    <div>
+                        <div class="text-[10px] text-emerald-600 font-extrabold uppercase tracking-wide">CAREER 0${i + 1}</div>
+                        <div class="text-sm font-bold text-slate-800">${careerItem.title || defaultCardData.careers[i].title}</div>
+                    </div>
+                `;
+                careerContainer.appendChild(itemDiv);
+            }
+
+            // 소셜 링크 연결 확정
+            const blogUrl = (cardData.social && cardData.social.blog) ? cardData.social.blog : "https://blog.naver.com/Hye7077";
+            const youtubeUrl = (cardData.social && cardData.social.youtube) ? cardData.social.youtube : "https://www.youtube.com/@tv-kc3bm";
+            const instagramUrl = (cardData.social && cardData.social.instagram) ? cardData.social.instagram : "https://www.instagram.com/minji_sam";
+
+            document.getElementById('link-blog').href = blogUrl;
+            document.getElementById('link-youtube').href = youtubeUrl;
+            document.getElementById('link-instagram').href = instagramUrl;
+        }
+
+        // 파일 업로드 처리
+        function handleImageUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            if (!file.type.startsWith('image/')) {
+                showToast("이미지 파일만 업로드 가능합니다.");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                tempPhotoData = evt.target.result;
+                document.getElementById('edit-photo-url').value = "";
+                showToast("사진이 선택되었습니다. '저장하기'를 눌러주세요.");
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removeProfilePhoto() {
+            tempPhotoData = "";
+            document.getElementById('edit-photo-url').value = "";
+            document.getElementById('edit-photo-file').value = "";
+            showToast("프로필 사진이 제거되었습니다.");
+        }
+
+        // 음성 읽기 (TTS)
+        let isSpeaking = false;
+        function playTTS() {
+            if (!('speechSynthesis' in window)) {
+                showToast("이 브라우저는 음성합성을 지원하지 않습니다.");
+                return;
+            }
+
+            if (isSpeaking) {
+                window.speechSynthesis.cancel();
+                isSpeaking = false;
+                document.getElementById('tts-btn-text').textContent = "강사 소개 음성으로 듣기";
+                return;
+            }
+
+            const speechText = `안녕하세요! ${cardData.title} ${cardData.name}입니다. ${cardData.slogan} 전문 강사로서 AI 활용, 디지털튜터, 스마트폰 리터러시, AI 숏폼 영상 교육을 전달합니다. 감사합니다.`;
+            const utterance = new SpeechSynthesisUtterance(speechText);
+            utterance.lang = 'ko-KR';
+            utterance.rate = 0.95;
+
+            utterance.onstart = () => {
+                isSpeaking = true;
+                document.getElementById('tts-btn-text').textContent = "음성 재생 중... (클릭 시 정지)";
+            };
+
+            utterance.onend = () => {
+                isSpeaking = false;
+                document.getElementById('tts-btn-text').textContent = "강사 소개 음성으로 듣기";
+            };
+
+            utterance.onerror = () => {
+                isSpeaking = false;
+                document.getElementById('tts-btn-text').textContent = "강사 소개 음성으로 듣기";
+            };
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // 텍스트 클립보드 복사 범용 도구
+        function fallbackCopyText(text, successMsg) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-9999px";
+            textArea.style.top = "0";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            let successful = false;
+            try {
+                successful = document.execCommand('copy');
+            } catch (err) {
+                successful = false;
+            }
+            document.body.removeChild(textArea);
+
+            if (successful) {
+                showToast(successMsg);
+            } else {
+                showToast("복사 권한이 제한되어 있습니다.");
+            }
+        }
+
+        // 스마트폰 모바일 공유 / 카카오톡 전달 기능
+        function shareCardUrl() {
+            const currentUrl = window.location.href;
+            const shareTitle = `${cardData.name} - ${cardData.title} 디지털 명함`;
+            const shareText = `${cardData.name} 강사의 모바일 명함입니다.\n${cardData.slogan}\n\n`;
+
+            // 모바일 Web Share API 지원 여부 확인
+            if (navigator.share) {
+                navigator.share({
+                    title: shareTitle,
+                    text: shareText,
+                    url: currentUrl
+                }).then(() => {
+                    showToast("성공적으로 공유되었습니다!");
+                }).catch((err) => {
+                    // 공유 취소 시 텍스트 복사로 유연한 대처
+                    copyUrlToClipboard(currentUrl);
+                });
+            } else {
+                copyUrlToClipboard(currentUrl);
+            }
+        }
+
+        function copyUrlToClipboard(url) {
+            const textToCopy = `[${cardData.name} ${cardData.title} 디지털 명함]\n${url}`;
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    showToast("명함 주소가 복사되었습니다! 카톡에 붙여넣기 하세요.");
+                }).catch(() => {
+                    fallbackCopyText(textToCopy, "명함 주소가 복사되었습니다! 카톡에 붙여넣기 하세요.");
+                });
+            } else {
+                fallbackCopyText(textToCopy, "명함 주소가 복사되었습니다! 카톡에 붙여넣기 하세요.");
+            }
+        }
+
+        // 연락처 정보 전체 복사
+        function copyContact() {
+            const textToCopy = `[디지털 명함 정보]\n성함: ${cardData.name}\n직함: ${cardData.title}\n연락처: ${cardData.phone}\n주요 분야: AI활용교육, 디지털튜터, 스마트폰리터러시, AI숏폼영상`;
+            
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    showToast("연락처 정보가 복사되었습니다!");
+                }).catch(() => {
+                    fallbackCopyText(textToCopy, "연락처 정보가 복사되었습니다!");
+                });
+            } else {
+                fallbackCopyText(textToCopy, "연락처 정보가 복사되었습니다!");
+            }
+        }
+
+        // Toast 알림
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').textContent = msg;
+            toast.classList.remove('opacity-0', 'pointer-events-none');
+            toast.classList.add('opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('opacity-100');
+                toast.classList.add('opacity-0', 'pointer-events-none');
+            }, 2600);
+        }
+
+        // QR 모달
+        function openQRModal() {
+            document.getElementById('qr-modal').classList.remove('hidden');
+            const qrContainer = document.getElementById('qrcode-canvas');
+            qrContainer.innerHTML = '';
+            
+            new QRCode(qrContainer, {
+                text: window.location.href,
+                width: 150,
+                height: 150,
+                colorDark: "#15803d",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        }
+
+        function closeQRModal() {
+            document.getElementById('qr-modal').classList.add('hidden');
+        }
+
+        // 관리자 모달
+        function openAdminAuthModal() {
+            document.getElementById('admin-password-input').value = '';
+            document.getElementById('admin-auth-modal').classList.remove('hidden');
+        }
+
+        function closeAdminAuthModal() {
+            document.getElementById('admin-auth-modal').classList.add('hidden');
+        }
+
+        function verifyAdminPassword() {
+            const inputPass = document.getElementById('admin-password-input').value;
+            if (inputPass === (cardData.adminPass || "1234")) {
+                closeAdminAuthModal();
+                openAdminEditModal();
+            } else {
+                showToast("비밀번호가 일치하지 않습니다.");
+            }
+        }
+
+        function openAdminEditModal() {
+            tempPhotoData = cardData.photo || "";
+            document.getElementById('edit-photo-url').value = cardData.photo && !cardData.photo.startsWith('data:') ? cardData.photo : "";
+            document.getElementById('edit-name').value = cardData.name || "";
+            document.getElementById('edit-title').value = cardData.title || "";
+            document.getElementById('edit-slogan').value = cardData.slogan || "";
+            document.getElementById('edit-phone').value = cardData.phone || "";
+
+            document.getElementById('edit-career-1').value = cardData.careers[0]?.title || "";
+            document.getElementById('edit-career-2').value = cardData.careers[1]?.title || "";
+            document.getElementById('edit-career-3').value = cardData.careers[2]?.title || "";
+            document.getElementById('edit-career-4').value = cardData.careers[3]?.title || "";
+
+            document.getElementById('edit-blog').value = cardData.social?.blog || "https://blog.naver.com/Hye7077";
+            document.getElementById('edit-youtube').value = cardData.social?.youtube || "https://www.youtube.com/@tv-kc3bm";
+            document.getElementById('edit-instagram').value = cardData.social?.instagram || "https://www.instagram.com/minji_sam";
+            
+            document.getElementById('edit-admin-pass').value = "";
+
+            document.getElementById('admin-edit-modal').classList.remove('hidden');
+        }
+
+        function closeAdminEditModal() {
+            document.getElementById('admin-edit-modal').classList.add('hidden');
+        }
+
+        // 관리자 설정 저장
+        function saveAdminSettings(e) {
+            e.preventDefault();
+
+            const photoUrlInput = document.getElementById('edit-photo-url').value.trim();
+            if (photoUrlInput !== "") {
+                cardData.photo = photoUrlInput;
+            } else {
+                cardData.photo = tempPhotoData;
+            }
+
+            cardData.name = document.getElementById('edit-name').value;
+            cardData.title = document.getElementById('edit-title').value;
+            cardData.slogan = document.getElementById('edit-slogan').value;
+            cardData.phone = document.getElementById('edit-phone').value;
+
+            cardData.careers[0].title = document.getElementById('edit-career-1').value;
+            cardData.careers[1].title = document.getElementById('edit-career-2').value;
+            cardData.careers[2].title = document.getElementById('edit-career-3').value;
+            cardData.careers[3].title = document.getElementById('edit-career-4').value;
+
+            cardData.social.blog = document.getElementById('edit-blog').value;
+            cardData.social.youtube = document.getElementById('edit-youtube').value;
+            cardData.social.instagram = document.getElementById('edit-instagram').value;
+
+            const newPass = document.getElementById('edit-admin-pass').value.trim();
+            if (newPass !== "") {
+                cardData.adminPass = newPass;
+            }
+
+            try {
+                localStorage.setItem('lee_jungho_card_data', JSON.stringify(cardData));
+                renderCardData();
+                closeAdminEditModal();
+                showToast("명함 정보가 저장되었습니다!");
+            } catch (err) {
+                showToast("저장 중 오류가 발생했습니다.");
+            }
+        }
+
+        function resetToDefaultData() {
+            if (confirm("기본 정보로 초기화하시겠습니까?")) {
+                cardData = JSON.parse(JSON.stringify(defaultCardData));
+                localStorage.removeItem('lee_jungho_card_data');
+                renderCardData();
+                closeAdminEditModal();
+                showToast("초기화가 완료되었습니다.");
+            }
+        }
+    </script>
+</body>
+</html>
